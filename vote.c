@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<malloc.h>
 #include<stdlib.h>
+#include<time.h>
 
 #define MAP_LIMIT 3
 
@@ -17,11 +18,12 @@ typedef struct
 	int rear;
 }QUEUE; 
 
-void vote(MAP *maps,int *map_number)
+void vote(MAP *maps,int *max,int *min)
 {
+	srand(time(NULL));
 	int users = 10;
 	do{
-		maps[rand() % *map_number].votes += 1;
+		maps[rand() % (*max+1-*min)+*min].votes += 1;
 	}while(--users!=0);
 	
 }
@@ -49,6 +51,7 @@ void sort_votes(QUEUE *map_selection)
 
 void print_votes(QUEUE *map_selection)
 {
+	printf("\t__VOTES__\n");
 	for(int i=map_selection->front;i<=map_selection->rear;i++)
 	{
 		printf("[%d]Map votes = %d\n",i,map_selection->maps[i].votes);
@@ -76,22 +79,26 @@ int main()
 		for(int i=map_selection.front;i<=map_selection.rear;i++)
 			map_selection.maps[i].votes = 0;
 
-		int map_number = map_selection.rear - map_selection.front + 1;
-		vote(map_selection.maps,&map_number);
+		//int map_number = map_selection.rear - map_selection.front;
+		int map_number = map_selection.rear;
+		vote(map_selection.maps,&map_number,&map_selection.front);
 		print_votes(&map_selection);
 
 		printf("sorted:\n\n");
 		sort_votes(&map_selection);
-		if(once++ == 0) map_selection.maps[3].votes = map_selection.maps[2].votes;	
+		
+	//	if(once++ == 0){ map_selection.maps[1].votes = map_selection.maps[2].votes = map_selection.maps[3].votes;} 
+		sort_votes(&map_selection);	
 		print_votes(&map_selection);
 		printf("\n");
+		
 		while(map_selection.maps[map_selection.front].votes < map_selection.maps[map_selection.rear].votes)
 		{
 			dequeue(&map_selection.front,&map_selection.rear);
 		}
 	}while(map_selection.front!=map_selection.rear);
 
-	printf("Next map with votes:%d\n",map_selection.maps[map_selection.front].votes);
+	printf("\nNext map with votes:%d\n",map_selection.maps[map_selection.front].votes);
 
 	free(map_selection.maps);
 	return 0;
